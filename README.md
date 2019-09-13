@@ -1,25 +1,31 @@
-# Polybar i3 workspace windows
+# Polybar i3 windows script
 
-This script shows all windows in the current i3 workspace in polybar.
+Miss windows-like list of all windows in your taskbar?
+
+<img src="https://user-images.githubusercontent.com/9664601/56872872-05365f00-6a2e-11e9-8383-1849e5980b48.png">
+
+The `window class => icon` map is pretty much empty, set it up the way you like it so it works for your font and apps.
 
 ## Features
 
 * Focus workspace and window on left mouse button click
 * Highlight urgent windows
 * Remove unnecessary text from window titles like " - Chromium" for chromium windows to make them shorter
-* Icon color supported
-* Window name is only shown when there are multiple same applications in the current workspace, or there will only be their class name
-* Shorten the bar when there are many windows. They could still overflow, unfortunately.
+* Overflow the polybar when there is too many windows open :^)
 
-## Dependencies
-* i3-ipc
+### Planned improvements
+
+* limit to some number of windows / characters to somehow solve the overflowing issue
+* Visually group together workspaces
+* Configurability
+* Make the window title formatting automatic (e.g. always removing ` - [app name]`)
 
 ## Example config
 
 ```ini
 [module/i3-windows]
 type = custom/script
-exec = ~/projects/polybar-i3-workspace-windows/module.py
+exec = ~/projects/polybar-i3-windows/module.py
 tail = true
 ```
 
