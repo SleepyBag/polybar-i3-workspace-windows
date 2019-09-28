@@ -20,6 +20,7 @@ USER = getpass.getuser()
 
 ICONS = [
 
+    ("name=WeChat"                          , "\uf1d7" , "#B2E281") ,
     ("class=Chromium-browser|Google-chrome" , "\uf268" , "#367dd0") ,
     ("class=TelegramDesktop"                , "\uf3fe" , "#32AADF") ,
     ("class=URxvt|Termite|Tilix"            , "\uf120" , "#772953") ,
@@ -28,9 +29,9 @@ ICONS = [
     ("class=electronic-wechat|Wechat"       , "\uf1d7" , "#B2E281") ,
     ("class=Artha"                          , "\uf02d" , "#835c3b") ,
     ("class=Mailspring"                     , "\uf0e0" , "#F6C12A") ,
-    ("class=Nemo|Nautilus"                  , "\uf07c" , "#F7C800") ,
+    ("class=Nemo|Nautilus|Pcmanfm|ranger"   , "\uf07c" , "#F7C800") ,
+    ("class=Wpspdf|MuPDF|Zathura|Foxit"     , "\uf724" , "#F68B1F") ,
     ("class=Wps"                            , "\uf72b" , "#6090E6") ,
-    ("class=MuPDF|Zathura|Foxit"            , "\uf724" , "#F68B1F") ,
     ("class=Et"                             , "\uf71a" , "#387E3F") ,
     ("class=Wpp"                            , "\uf726" , "#ae5831") ,
     ("class=File-roller"                    , "\uf1c6" , "#367BF0") ,
@@ -46,8 +47,6 @@ ICONS = [
     ("class=Steam"                          , "\uf11b" , "#316282") ,
     ("class=Vivaldi"                        , "\uf27d" , "#D73333") ,
     ("class=draw.io"                        , "\uf542" , "#F08705") ,
-    ("class=Code"                           , "\ufb0f" , "#007ACC") ,
-    ("class=feh|Eog"                        , "\uf03e" , "#74AECE") ,
     ("class=.*"                             , "\uf0c9" , "#ffffff") ,
 
 ]
@@ -120,7 +119,7 @@ def make_title(app, klass_counter, max_length):
         out = app.name
     else:
         out = get_prefix(app) + ' '
-        f_color = icon_resolver.get_color({'class': app.window_class}) if app.focused else\
+        f_color = icon_resolver.get_color({'class': app.window_class, 'name': app.name}) if app.focused else\
             '#e84f4f' if app.urgent else\
             '#ffffff'
 
@@ -150,7 +149,7 @@ def get_prefix(app):
 
 def format_title(app, klass_counter, max_length):
 
-    title = app.window_class if klass_counter[app.window_class] == 1 else app.name
+    title = app.window_class if (klass_counter[app.window_class] == 1 or not app.name) else app.name
     #  title = FORMATERS[klass](name) if klass in FORMATERS else name
 
     if len(title) > max_length:
