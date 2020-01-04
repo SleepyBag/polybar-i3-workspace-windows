@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from subprocess import Popen, PIPE
 import os
 import asyncio
 import getpass
@@ -9,6 +10,11 @@ from time import sleep
 from collections import Counter
 
 from icon_resolver import IconResolver
+
+polybar_pid = os.getppid()
+xdotool = Popen(['xdotool', 'search', '--pid', str(polybar_pid)], stdout=PIPE)
+polybar_window_id, _ = xdotool.communicate()
+polybar_window_id = int(polybar_window_id)
 
 #: Max length of single window title
 MAX_LENGTH = 70
@@ -35,7 +41,7 @@ ICONS = [
     ("class=Et"                             , "\uf71a" , "#387E3F") ,
     ("class=Wpp"                            , "\uf726" , "#ae5831") ,
     ("class=File-roller"                    , "\uf1c6" , "#367BF0") ,
-    ("class=Emacs"                          , "\uf2d7" , "#694E7F") ,
+    ("class=Emacs|terminology"              , "\uf2d7" , "#694E7F") ,
     ("class=Gnome-system-monitor"           , "\uf159" , "#689D6A") ,
     ("class=Zeal"                           , "\uf128" , "#D86888") ,
     ("class=Gpick"                          , "\uf5ac" , "#357AF0") ,
@@ -47,6 +53,7 @@ ICONS = [
     ("class=Steam"                          , "\uf11b" , "#316282") ,
     ("class=Vivaldi"                        , "\uf27d" , "#D73333") ,
     ("class=draw.io"                        , "\uf542" , "#F08705") ,
+    ("class=code-oss"                       , "\ufb0f" , "#3C99D4") ,
     ("class=.*"                             , "\uf0c9" , "#ffffff") ,
 
 ]
@@ -92,20 +99,24 @@ def dfs(r, con):
 
 def render_apps(i3):
     tree = i3.get_tree()
+    screens = i3.get_outputs()
+    screen_workspace = {screen.name: screen.current_workspace 
+                        for screen in screens if screen.active}
 
-    #  import ipdb; ipdb.set_trace()
-    focused = tree.find_focused()
-    workspace = focused.workspace()
-    if workspace is not focused:
-        #  while parent is not parent.workspace() and parent.layout != 'tabbed':
-        #      parent = parent.parent
-        #  apps = workspace.leaves() if workspace is not None else []
+    workspaces = tree.workspaces()
+    polybar = tree.find_by_window(polybar_window_id)
+    screen = polybar.parent.parent.name
+    workspace = screen_workspace[screen]
+    workspace = [w for w in tree.workspaces() if w.name == workspace][0]
+
+    #  focused = tree.find_focused()
+    #  workspace = focused.workspace()
+    if not workspace.focused:
         apps = []
         dfs(workspace, apps)
         apps = [app for app in apps if not 'on' in app.floating]
         apps.sort(key=lambda app: app.workspace().name)
 
-        #  out = '%{O12}'.join(format_entry(app) for app in apps)
         klass_counter = Counter([app.window_class for app in apps])
         out = ' '.join(make_title(app, klass_counter, MAX_LENGTH // len(apps)) for app in apps)
     else:
@@ -135,7 +146,10 @@ def make_title(app, klass_counter, max_length):
         '#e84f4f' if app.urgent else\
         '#404040'
 
-    return '%%{o%s} %s %%{-o}' % (u_color, title)
+    if app.focused or app.urgent:
+        return '%%{B#111111}%%{u%s} %s %%{-u}%%{B-}' % (u_color, title)
+    else:
+        return title
 
 
 def get_prefix(app):
