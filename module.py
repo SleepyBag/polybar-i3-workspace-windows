@@ -118,6 +118,7 @@ def render_apps(i3):
         floating_apps = []
         for node in floating_nodes:
             dfs(node, floating_apps)
+        floating_apps.sort(key=lambda app: app.id)
         apps = [app for app in apps if not 'on' in app.floating]
         #  apps.sort(key=lambda app: app.workspace().name)
 
