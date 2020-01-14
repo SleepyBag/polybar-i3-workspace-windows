@@ -8,6 +8,7 @@ import i3ipc
 import platform
 from time import sleep
 from collections import Counter
+from itertools import chain
 
 from icon_resolver import IconResolver
 
@@ -44,7 +45,7 @@ ICONS = [
     ("class=Emacs|terminology"              , "\uf2d7" , "#694E7F") ,
     ("class=Gnome-system-monitor"           , "\uf159" , "#689D6A") ,
     ("class=Zeal"                           , "\uf128" , "#D86888") ,
-    ("class=Gpick"                          , "\uf5ac" , "#357AF0") ,
+    ("class=Gpick"                          , "\uf1fb" , "#357AF0") ,
     ("class=stacer"                         , "\uf135" , "#212F3C") ,
     ("class=Firefox"                        , "\uf269" , "#FF3729") ,
     ("class=Inkscape"                       , "\uf1fc" , "#5C2E4F") ,
@@ -54,7 +55,8 @@ ICONS = [
     ("class=Vivaldi"                        , "\uf27d" , "#D73333") ,
     ("class=draw.io"                        , "\uf542" , "#F08705") ,
     ("class=code-oss"                       , "\ufb0f" , "#3C99D4") ,
-    ("class=.*"                             , "\uf0c9" , "#ffffff") ,
+    ("class=Guake"                          , "\uf1a0" , "#92B89E") ,
+    #  ("class=.*"                             , "\uf0c9" , "#ffffff") ,
 
 ]
 
@@ -109,20 +111,43 @@ def render_apps(i3):
     workspace = screen_workspace[screen]
     workspace = [w for w in tree.workspaces() if w.name == workspace][0]
 
-    #  focused = tree.find_focused()
-    #  workspace = focused.workspace()
     if not workspace.focused:
         apps = []
         dfs(workspace, apps)
+        floating_nodes = workspace.floating_nodes
+        floating_apps = []
+        for node in floating_nodes:
+            dfs(node, floating_apps)
         apps = [app for app in apps if not 'on' in app.floating]
-        apps.sort(key=lambda app: app.workspace().name)
+        #  apps.sort(key=lambda app: app.workspace().name)
 
         klass_counter = Counter([app.window_class for app in apps])
         out = ' '.join(make_title(app, klass_counter, MAX_LENGTH // len(apps)) for app in apps)
+        if floating_apps:
+            out += '  |  '
+            out += ' '.join(make_title_float(app) for app in floating_apps)
     else:
         out = workspace.name
 
     print(out, flush=True)
+
+
+def make_title_float(app):
+    if app.window_class is None:
+        out = app.name
+    else:
+        out = get_prefix(app) + ' '
+        f_color = icon_resolver.get_color({'class': app.window_class, 'name': app.name}) if app.focused else\
+            '#e84f4f' if app.urgent else\
+            '#ffffff'
+    title = '%%{A1:%s %s:}%s%%{A-}' % (COMMAND_PATH, app.id, out)
+    u_color = f_color if app.focused else\
+        '#e84f4f' if app.urgent else\
+        '#404040'
+    if app.focused or app.urgent:
+        return '%%{u%s} %s %%{-u}' % (u_color, title)
+    else:
+        return title
 
 
 def make_title(app, klass_counter, max_length):
@@ -133,19 +158,11 @@ def make_title(app, klass_counter, max_length):
         f_color = icon_resolver.get_color({'class': app.window_class, 'name': app.name}) if app.focused else\
             '#e84f4f' if app.urgent else\
             '#ffffff'
-
-        #  if app.focused:
-        #  out += '%%{F%s}' % (f_color) + format_title(app, klass_counter, max_length) + '%{F-}'
         out += format_title(app, klass_counter, max_length)
-        #  else:
-        #      out += format_title(app)
-
     title = '%%{A1:%s %s:}%s%%{A-}' % (COMMAND_PATH, app.id, out)
-
     u_color = f_color if app.focused else\
         '#e84f4f' if app.urgent else\
         '#404040'
-
     if app.focused or app.urgent:
         #  return '%%{B#111111}%%{u%s} %s %%{-u}%%{B-}' % (u_color, title)
         return '%%{u%s} %s %%{-u}' % (u_color, title)
