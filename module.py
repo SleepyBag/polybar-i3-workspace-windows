@@ -147,7 +147,8 @@ def make_title(app, klass_counter, max_length):
         '#404040'
 
     if app.focused or app.urgent:
-        return '%%{B#111111}%%{u%s} %s %%{-u}%%{B-}' % (u_color, title)
+        #  return '%%{B#111111}%%{u%s} %s %%{-u}%%{B-}' % (u_color, title)
+        return '%%{u%s} %s %%{-u}' % (u_color, title)
     else:
         return title
 
