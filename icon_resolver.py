@@ -36,7 +36,7 @@ class IconResolver:
 
 
     def resolve(self, app):
-        out = app['class']
+        out = app['class'][0]
         id = pickle.dumps(app)
 
         if id in self._cache:

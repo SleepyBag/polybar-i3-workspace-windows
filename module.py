@@ -26,7 +26,6 @@ HOSTNAME = platform.node()
 USER = getpass.getuser()
 
 ICONS = [
-
     ("name=WeChat"                          , "\uf1d7" , "#B2E281") ,
     ("class=Chromium-browser|Google-chrome" , "\uf268" , "#367dd0") ,
     ("class=TelegramDesktop"                , "\uf3fe" , "#32AADF") ,
@@ -56,6 +55,8 @@ ICONS = [
     ("class=draw.io"                        , "\uf542" , "#F08705") ,
     ("class=code-oss"                       , "\ufb0f" , "#3C99D4") ,
     ("class=Guake"                          , "\uf1a0" , "#92B89E") ,
+    ("class=qutebrowser"                    , "\ufa9e" , "#1A4D86") ,
+    ("class=D-feet"                         , "\uf848" , "#3011B4") ,
     #  ("class=.*"                             , "\uf0c9" , "#ffffff") ,
 
 ]
@@ -118,7 +119,7 @@ def render_apps(i3):
         floating_apps = []
         for node in floating_nodes:
             dfs(node, floating_apps)
-        floating_apps.sort(key=lambda app: app.id)
+        floating_apps.sort(key=lambda app: app.rect.x)
         apps = [app for app in apps if not 'on' in app.floating]
         #  apps.sort(key=lambda app: app.workspace().name)
 
