@@ -2,6 +2,12 @@ import collections
 import re
 import pickle
 
+char_to_emoji = {
+    'a': '🇦', 'b': '🇧', 'c': '🇨', 'd': '🇩', 'e': '🇪', 'f': '🇫', 'g': '🇬',
+    'h': '🇭', 'i': '🇮', 'j': '🇯', 'k': '🇰', 'l': '🇱', 'm': '🇲', 'n': '🇳',
+    'o': '🇴', 'p': '🇵', 'q': '🇶', 'r': '🇷', 's': '🇸', 't': '🇹', 'u': '🇺',
+    'v': '🇻', 'w': '🇼', 'x': '🇽', 'y': '🇾', 'z': '🇿',
+}
 
 class Rule:
     prop = ''
@@ -33,12 +39,10 @@ class IconResolver:
         for rule in self._rules:
             if rule.match(app):
                 return rule.color
-
+        return '#ffffff'
 
     def resolve(self, app):
-        out = app['class'][0]
         id = pickle.dumps(app)
-
         if id in self._cache:
             return self._cache[id]
 
@@ -46,6 +50,10 @@ class IconResolver:
             if rule.match(app):
                 out = '%{F' + rule.color + '}' + rule.value + '%{F-}'
                 break
+        else:
+            out = app['class'][0].lower()
+            if out in char_to_emoji:
+                out = char_to_emoji[out]
 
         self._cache[id] = out
 
