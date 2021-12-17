@@ -1,4 +1,10 @@
-# Polybar i3 windows script
+# Polybar i3 workspace windows script
+
+This project is a fork of (polybar-i3-windows)[https://github.com/meelkor/polybar-i3-windows].
+
+The functions are the same (polybar-i3-windows)[https://github.com/meelkor/polybar-i3-windows], but only show the windows in current workspace.
+
+The following is the README file of (polybar-i3-windows)[https://github.com/meelkor/polybar-i3-windows].
 
 Miss windows-like list of all windows in your taskbar?
 
